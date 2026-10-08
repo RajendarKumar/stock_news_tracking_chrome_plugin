@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock News Tracker</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Stock News</h1>
+          <span class="brand-sub">Holdings & Watchlists</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-refresh" class="icon-btn" title="Refresh news feeds">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+        </button>
+        <button id="btn-mark-all-read" class="icon-btn" title="Mark all articles as read">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </button>
+        <button id="btn-open-options" class="icon-btn" title="Settings & Preferences">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Zerodha Kite Manual Sync Banner (User Controlled) -->
+    <div id="broker-sync-banner" class="broker-banner">
+      <div class="broker-info">
+        <span class="broker-status-dot" id="kite-status-dot"></span>
+        <div class="broker-text">
+          <strong id="kite-sync-title">Zerodha Holdings Sync</strong>
+          <span id="kite-sync-desc">Manual only: sync when you choose</span>
+        </div>
+      </div>
+      <button id="btn-sync-kite" class="sync-action-btn">
+        <span class="btn-spinner" id="sync-spinner" style="display:none;"></span>
+        <span id="sync-btn-label">⚡ Sync Holdings</span>
+      </button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="tab-news">
+        <span>📰 News Feed</span>
+        <span class="badge" id="nav-news-badge" style="display: none;">0</span>
+      </button>
+      <button class="nav-tab" data-tab="tab-portfolio">
+        <span>💼 Companies</span>
+        <span class="badge" id="nav-stocks-count">0</span>
+      </button>
+      <button class="nav-tab" data-tab="tab-bookmarks">
+        <span>🔖 Saved</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: News Feed -->
+    <div id="tab-news" class="tab-content active">
+      <!-- Company Filters Section -->
+      <div class="company-filter-section">
+        <div class="company-filter-header">
+          <span class="filter-heading">Filter by Company:</span>
+          <div class="scope-toggle">
+            <button class="scope-btn active" data-category="ALL">All</button>
+            <button class="scope-btn" data-category="HOLDING">🏢 Holdings (<span id="count-cat-holdings">0</span>)</button>
+            <button class="scope-btn" data-category="WATCHLIST">⭐ Watchlist (<span id="count-cat-watchlist">0</span>)</button>
+          </div>
+        </div>
+
+        <!-- Horizontal Scrollable Company Buttons -->
+        <div class="pills-container" id="stock-pills-bar">
+          <!-- Company pills injected dynamically: [All] [RELIANCE] [TCS] [INFY] ... [+ Track Company] -->
+        </div>
+      </div>
+
+      <!-- Active Company Filter Banner (shows when a specific company is clicked) -->
+      <div id="active-company-banner" class="active-company-banner" style="display: none;">
+        <div class="banner-left">
+          <span class="active-dot"></span>
+          <span>Showing news for: <strong id="active-company-label">INFY</strong></span>
+        </div>
+        <button id="btn-clear-active-company" class="clear-filter-btn" title="Show all companies">✕ Show All</button>
+      </div>
+
+      <!-- Search Box -->
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="news-search-input" placeholder="Search news headlines or keywords...">
+        <button id="btn-clear-search" class="clear-search-btn" style="display: none;">&times;</button>
+      </div>
+
+      <!-- News Feed Container -->
+      <div id="news-feed-list" class="news-list">
+        <!-- Dynamic news cards injected here -->
+      </div>
+
+      <!-- Loading and Empty States -->
+      <div id="news-loading-state" class="state-container" style="display: none;">
+        <div class="spinner"></div>
+        <p>Fetching real-time company news...</p>
+      </div>
+
+      <div id="news-empty-state" class="state-container" style="display: none;">
+        <div class="empty-icon">📰</div>
+        <h3>No News Found</h3>
+        <p id="empty-state-desc">Add any company below or sync holdings from Zerodha Kite.</p>
+        <button class="primary-btn" id="btn-empty-sync">Sync from Kite Now</button>
+      </div>
+    </div>
+
+    <!-- TAB 2: Portfolio & Watchlist Companies -->
+    <div id="tab-portfolio" class="tab-content">
+      <!-- Add Any Company Form -->
+      <div class="card add-stock-card">
+        <h3>+ Track Any Company</h3>
+        <p class="card-hint">Track news for any company, even if you do not hold shares.</p>
+        <form id="form-add-stock" class="add-stock-form">
+          <div class="input-row">
+            <input type="text" id="input-add-symbol" placeholder="Symbol (e.g. ZOMATO, TATASTEEL)" required>
+            <input type="text" id="input-add-name" placeholder="Company Name (auto-fills)">
+          </div>
+          <button type="submit" class="primary-btn">Track Company</button>
+        </form>
+
+        <!-- Quick Add Suggestions -->
+        <div class="quick-add-suggestions">
+          <span class="quick-label">Quick Add:</span>
+          <button class="quick-chip" data-sym="RELIANCE">RELIANCE</button>
+          <button class="quick-chip" data-sym="TCS">TCS</button>
+          <button class="quick-chip" data-sym="INFY">INFY</button>
+          <button class="quick-chip" data-sym="TATAMOTORS">TATAMOTORS</button>
+          <button class="quick-chip" data-sym="HDFCBANK">HDFCBANK</button>
+          <button class="quick-chip" data-sym="ZOMATO">ZOMATO</button>
+        </div>
+      </div>
+
+      <!-- Portfolio List Header -->
+      <div class="section-header">
+        <h3>Tracked Companies (<span id="portfolio-total-count">0</span>)</h3>
+        <div class="header-action-buttons">
+          <button id="btn-clear-holdings" class="text-btn danger-text" style="display: none;" title="Clear all stocks imported from Zerodha Kite">Clear Holdings</button>
+          <button id="btn-clear-all" class="text-btn danger-text" title="Clear complete list of all companies">🗑️ Clear Complete List</button>
+        </div>
+      </div>
+
+      <!-- Stocks List -->
+      <div id="portfolio-stocks-list" class="stocks-list">
+        <!-- Dynamic stock items injected here -->
+      </div>
+    </div>
+
+    <!-- TAB 3: Bookmarks -->
+    <div id="tab-bookmarks" class="tab-content">
+      <div class="section-header">
+        <h3>Saved Articles (<span id="bookmarks-count">0</span>)</h3>
+      </div>
+      <div id="bookmarks-feed-list" class="news-list">
+        <!-- Dynamic bookmarked cards injected here -->
+      </div>
+      <div id="bookmarks-empty-state" class="state-container" style="display: none;">
+        <div class="empty-icon">🔖</div>
+        <h3>No Saved Articles</h3>
+        <p>Click the bookmark icon on any news article to save it for later reference.</p>
+      </div>
+    </div>
+
+    <!-- Footer Status Bar -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <span class="source-tag">User Controlled</span>
+        <span id="footer-sync-time">Last updated: Just now</span>
+      </div>
+      <div class="footer-right">
+        <a href="#" id="link-options">Settings</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../shared/stock-lookup.js"></script>
+  <script src="../shared/storage.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
