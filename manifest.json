@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Stock News Tracker (Zerodha Kite & Portfolio)",
+  "version": "1.0.0",
+  "description": "Track real-time financial news for stocks in your Zerodha Kite portfolio with 1-click sync and desktop alerts.",
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://kite.zerodha.com/*",
+    "https://news.google.com/*",
+    "https://finance.yahoo.com/*"
+  ],
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Stock News Tracker",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
+
