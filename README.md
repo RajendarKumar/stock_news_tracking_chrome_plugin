@@ -41,18 +41,24 @@ A Google Chrome Extension that tracks real-time financial news for companies you
 
 ---
 
-## 🚀 How to Install in Google Chrome
+## 🚀 How to Install
 
-1. Open **Google Chrome** and navigate to:
+### Option 1: Chrome Web Store (Recommended)
+
+1. Visit the [Stock News Tracker](https://chrome.google.com/webstore) listing on the Chrome Web Store.
+2. Click **"Add to Chrome"** → **"Add extension"**.
+3. Pin the extension to your Chrome toolbar by clicking the puzzle icon 🧩 in Chrome's top-right corner and clicking the pin icon 📌 next to **Stock News Tracker**.
+
+### Option 2: Load Unpacked (Developer Mode)
+
+1. Clone or download this repository.
+2. Open **Google Chrome** and navigate to:
    ```text
    chrome://extensions/
    ```
-2. Enable **Developer mode** using the toggle in the top-right corner.
-3. If you have previously loaded the unpacked extension, click the **Reload icon (🔄)** on the **Stock News Tracker** card. Otherwise, click **"Load unpacked"** and select this directory:
-   ```text
-   /Users/rajendar/code/plugin/stock_news_tracking
-   ```
-4. Pin the extension to your Chrome toolbar by clicking the puzzle icon 🧩 in Chrome's top-right corner and clicking the pin icon 📌 next to **Stock News Tracker**.
+3. Enable **Developer mode** using the toggle in the top-right corner.
+4. Click **"Load unpacked"** and select the cloned repository folder.
+5. Pin the extension to your Chrome toolbar by clicking the puzzle icon 🧩 in Chrome's top-right corner and clicking the pin icon 📌 next to **Stock News Tracker**.
 
 ---
 
