@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Stock News Tracker</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="options-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h2>Stock News</h2>
+          <span class="sub">Preferences & Holdings</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-link active" data-section="section-holdings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+          Portfolio Holdings
+        </button>
+        <button class="nav-link" data-section="section-sync">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+          Zerodha Broker Sync
+        </button>
+        <button class="nav-link" data-section="section-notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          Notifications & Polling
+        </button>
+        <button class="nav-link" data-section="section-test">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Live Feed Tester
+        </button>
+        <button class="nav-link" data-section="section-backup">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Backup & Export
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Section 1: Portfolio Holdings -->
+      <section id="section-holdings" class="settings-section active">
+        <div class="section-title-bar">
+          <div>
+            <h2>Tracked Holdings & Companies</h2>
+            <p>Manage the stocks for which news will be tracked and delivered to your extension.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="btn-clear-all-options" class="btn btn-danger" title="Clear complete list of all companies">🗑️ Clear Complete List</button>
+            <button id="btn-clear-holdings-options" class="btn btn-secondary" title="Clear only broker holdings">Clear Holdings Only</button>
+            <button id="btn-add-modal" class="btn btn-primary">+ Add New Stock</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-actions">
+            <input type="text" id="holdings-search" placeholder="Search tracked stocks..." class="input-text">
+            <div class="actions-right">
+              <span id="total-stocks-label" class="badge-count">0 Stocks</span>
+            </div>
+          </div>
+
+          <table class="data-table" id="holdings-table">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Company Name</th>
+                <th>Source</th>
+                <th>Holdings Qty</th>
+                <th>Date Added</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="holdings-tbody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 2: Zerodha Kite Sync Guide -->
+      <section id="section-sync" class="settings-section">
+        <div class="section-title-bar">
+          <div>
+            <h2>Zerodha Kite Integration</h2>
+            <p>How the extension securely connects and extracts your stock holdings.</p>
+          </div>
+        </div>
+
+        <div class="card card-guide">
+          <h3>How Zerodha Kite Sync Works</h3>
+          <p class="guide-intro">The extension does <strong>not</strong> require or store your broker passwords or API secret keys. It securely reads the visible holdings table on your Kite dashboard in your browser.</p>
+
+          <div class="guide-steps">
+            <div class="step-card">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>Log in to Zerodha Kite</h4>
+                <p>Open <a href="https://kite.zerodha.com" target="_blank">kite.zerodha.com</a> in your browser and log into your account.</p>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>Navigate to Holdings</h4>
+                <p>Click on the <strong>Holdings</strong> tab (<a href="https://kite.zerodha.com/holdings" target="_blank">kite.zerodha.com/holdings</a>) or <strong>Positions</strong> tab.</p>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>Manual Sync on Demand</h4>
+                <p>Click <strong>⚡ Sync Holdings</strong> in the extension popup menu. The extension strictly reads only the stock symbols from your holdings table and never runs background scripts or touches anything else on Kite.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-action-box">
+            <button id="btn-open-kite" class="btn btn-primary">Open Zerodha Kite in New Tab</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Notifications & Polling -->
+      <section id="section-notifications" class="settings-section">
+        <div class="section-title-bar">
+          <div>
+            <h2>Notifications & Polling Settings</h2>
+            <p>Configure how frequently news feeds are refreshed and when to alert you.</p>
+          </div>
+        </div>
+
+        <div class="card form-card">
+          <div class="form-group">
+            <label for="select-refresh-interval">Background News Check Interval</label>
+            <select id="select-refresh-interval" class="select-input">
+              <option value="15">Every 15 minutes (Active trading)</option>
+              <option value="30">Every 30 minutes (Recommended)</option>
+              <option value="60">Every 1 hour</option>
+              <option value="120">Every 2 hours</option>
+            </select>
+            <span class="field-hint">The background service worker uses Chrome Alarms to check for fresh news updates.</span>
+          </div>
+
+          <div class="form-group-toggle">
+            <div class="toggle-text">
+              <label>Desktop Notifications</label>
+              <span class="field-hint">Display Chrome desktop alert banner when major news is published for your portfolio companies.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-notifications">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="select-news-region">Preferred News Edition</label>
+            <select id="select-news-region" class="select-input">
+              <option value="IN">India (NSE / BSE Financial Press - Economic Times, Livemint, etc.)</option>
+              <option value="US">Global / US (Wall Street Journal, Bloomberg, Reuters)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-max-articles">Maximum Articles Per Stock</label>
+            <input type="number" id="input-max-articles" min="3" max="25" value="10" class="input-text" style="width: 120px;">
+            <span class="field-hint">Retains the top N latest articles per stock in your feed cache.</span>
+          </div>
+
+          <button id="btn-save-settings" class="btn btn-primary">Save Settings</button>
+          <span id="save-status" class="status-msg"></span>
+        </div>
+      </section>
+
+      <!-- Section 4: Live Feed Tester -->
+      <section id="section-test" class="settings-section">
+        <div class="section-title-bar">
+          <div>
+            <h2>Live News Feed Tester</h2>
+            <p>Preview live RSS headlines for any company or symbol in real time.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="test-input-row">
+            <input type="text" id="test-symbol-input" placeholder="Enter stock symbol (e.g. TATAMOTORS, INFY, RELIANCE)" class="input-text">
+            <button id="btn-run-test" class="btn btn-primary">Fetch Live News</button>
+          </div>
+
+          <div id="test-results-container" class="test-results" style="display: none;">
+            <!-- Live test cards inserted here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Backup & Export -->
+      <section id="section-backup" class="settings-section">
+        <div class="section-title-bar">
+          <div>
+            <h2>Backup & Data Management</h2>
+            <p>Export your tracked portfolio or restore from a previously saved JSON file.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="backup-grid">
+            <div class="backup-box">
+              <h4>Export Portfolio</h4>
+              <p>Download your tracked stock list and metadata as a JSON file.</p>
+              <button id="btn-export-json" class="btn btn-secondary">Download Backup (.JSON)</button>
+            </div>
+            <div class="backup-box">
+              <h4>Import Portfolio</h4>
+              <p>Restore your portfolio list from a JSON backup.</p>
+              <input type="file" id="file-import-json" accept=".json" style="display: none;">
+              <button id="btn-import-json" class="btn btn-secondary">Upload JSON File</button>
+            </div>
+            <div class="backup-box danger-box">
+              <h4>Reset All Data</h4>
+              <p>Clears all cached news, read articles, and tracked stocks.</p>
+              <button id="btn-reset-data" class="btn btn-danger">Reset Everything</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Add Stock Modal Dialog -->
+  <dialog id="modal-add-stock" class="app-modal">
+    <div class="modal-header">
+      <h3>Add Tracked Stock</h3>
+      <button id="btn-close-modal" class="btn-close">&times;</button>
+    </div>
+    <form id="modal-form-add" class="modal-body">
+      <div class="form-group">
+        <label for="modal-input-symbol">Stock Symbol (NSE / BSE)</label>
+        <input type="text" id="modal-input-symbol" placeholder="e.g. INFY, RELIANCE, TCS" required class="input-text">
+      </div>
+      <div class="form-group">
+        <label for="modal-input-name">Company Name</label>
+        <input type="text" id="modal-input-name" placeholder="e.g. Infosys Limited" class="input-text">
+        <span class="field-hint">Auto-detected for most top Indian stocks.</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btn-cancel-modal" class="btn btn-secondary">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Stock</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="../shared/stock-lookup.js"></script>
+  <script src="../shared/storage.js"></script>
+  <script src="../background/rss-parser.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
+
