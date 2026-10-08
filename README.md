@@ -24,7 +24,7 @@ A Google Chrome Extension that tracks real-time financial news for companies you
   - DOM-independent RSS/XML parser compatible with modern Chrome Manifest V3 Service Workers.
 
 - 🔔 **Unread Badges & Desktop Notifications**:
-  - Configurable Chrome Alarms (every 15m, 30m, 1h, or 2h) check for new articles in the background.
+  - Configurable Chrome Alarms (every 5m, 15m, 30m, 1h, or 2h) check for new articles in the background.
   - Displays unread article count badge directly on the Chrome toolbar icon.
   - Fires desktop notifications when high-priority breaking news arrives for your holdings and watchlist companies.
 
@@ -70,6 +70,27 @@ A Google Chrome Extension that tracks real-time financial news for companies you
 - Click the **Stock News Tracker** icon in your Chrome toolbar.
 - Click **`⚡ Sync Holdings`**.
 - The extension reads the stock symbols from your holdings table, labels them as `🏢 Holding`, and starts tracking news for them alongside your other watchlist companies.
+
+---
+
+## ⚙️ Settings
+
+Open the **Options page** by clicking the gear icon in the popup footer or right-clicking the extension icon → **Options**.
+
+| Setting | Options | Default |
+|---------|---------|---------|
+| **Background News Check Interval** | Every 5 minutes (High frequency), 15 minutes (Active trading), 30 minutes (Recommended), 1 hour, 2 hours | 30 minutes |
+| **Desktop Notifications** | On / Off | On |
+| **News Region** | India (IN) / US & Global | India (IN) |
+| **Max Articles Per Stock** | Numeric limit per company | 10 |
+
+### Backup & Restore
+- **Export**: Download your entire portfolio (holdings + watchlist) as a JSON file.
+- **Import**: Upload a previously exported JSON file to restore your portfolio.
+- **Reset Everything**: Clears all data (stocks, news cache, settings) and restores defaults.
+
+### Live Feed Tester
+Enter any stock ticker in the **Live Feed Tester** section to preview the Google News RSS results in real time — useful for verifying that a ticker returns relevant articles before tracking it.
 
 ---
 
