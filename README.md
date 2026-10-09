@@ -105,3 +105,5 @@ Enter any stock ticker in the **Live Feed Tester** section to preview the Google
 - **Zero Automatic Broker Access**: No code is injected automatically when you visit or log into `kite.zerodha.com`.
 - **Zero Access to Sensitive Data**: The extension never reads or touches your password, TOTP, account funds, margin, or order book.
 - **Client-Side Only**: All holdings and preferences remain stored strictly inside your local browser storage (`chrome.storage.local`).
+
+📄 Read the full [Privacy Policy](https://rajendarkumar.github.io/stock_news_tracking_chrome_plugin/privacy-policy.html).

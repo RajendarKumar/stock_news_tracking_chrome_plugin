@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Stock News Tracker</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #3b82f6;
+      --green: #10b981;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 3rem;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.25rem;
+      color: #fff;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    h2 {
+      font-size: 1.2rem;
+      color: var(--accent);
+      margin: 2rem 0 0.75rem;
+    }
+    p, li {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+    ul {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    li { margin-bottom: 0.4rem; }
+    strong { color: var(--text); }
+    .highlight {
+      background: rgba(16, 185, 129, 0.1);
+      border-left: 3px solid var(--green);
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.5rem 0;
+    }
+    .highlight p { color: var(--text); margin: 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 1.5rem;
+      font-size: 0.9rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      color: var(--text);
+      font-weight: 600;
+      background: rgba(59, 130, 246, 0.08);
+    }
+    td { color: var(--text-muted); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .footer {
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔒 Privacy Policy</h1>
+    <p class="subtitle">Stock News Tracker (Zerodha Kite &amp; Portfolio) — Chrome Extension<br>
+    Effective Date: October 9, 2026 &nbsp;|&nbsp; Last Updated: October 9, 2026</p>
+
+    <div class="highlight">
+      <p><strong>TL;DR:</strong> This extension collects <strong>zero personal data</strong>. Everything is stored locally in your browser. No data is ever sent to any external server owned by us.</p>
+    </div>
+
+    <h2>1. Information We Collect</h2>
+    <p><strong>We do not collect, store, or transmit any personal information.</strong></p>
+    <p>The extension stores the following data <strong>locally</strong> in your browser using <code>chrome.storage.local</code>:</p>
+    <ul>
+      <li>Stock symbols and company names you choose to track (watchlist)</li>
+      <li>Stock symbols extracted from your Zerodha Kite holdings page (only when you explicitly click "Sync Holdings")</li>
+      <li>Cached news article headlines fetched from public RSS feeds</li>
+      <li>Your extension preferences (refresh interval, notification settings, region)</li>
+      <li>Read/bookmarked article states</li>
+    </ul>
+    <p><strong>None of this data ever leaves your browser.</strong> There is no analytics, no telemetry, no remote database, and no server-side component.</p>
+
+    <h2>2. How We Use Information</h2>
+    <p>The locally stored data is used solely to:</p>
+    <ul>
+      <li>Display financial news relevant to your tracked stocks</li>
+      <li>Show unread article badges and desktop notifications</li>
+      <li>Remember your preferences between browser sessions</li>
+    </ul>
+
+    <h2>3. Third-Party Services</h2>
+    <p>The extension fetches publicly available news content from:</p>
+    <ul>
+      <li><strong>Google News RSS</strong> (<code>news.google.com</code>) — public RSS feeds based on stock ticker search queries</li>
+      <li><strong>Yahoo Finance</strong> (<code>finance.yahoo.com</code>) — public financial news feeds</li>
+    </ul>
+    <p>These requests are standard HTTP fetches to public URLs. No authentication tokens, cookies, or personal identifiers are sent with these requests.</p>
+
+    <h2>4. Zerodha Kite Access</h2>
+    <div class="highlight">
+      <p><strong>The extension never accesses Zerodha Kite automatically.</strong> It only reads your holdings page when you explicitly click the "Sync Holdings" button.</p>
+    </div>
+    <ul>
+      <li>The extension <strong>never</strong> touches login pages, passwords, TOTP/2FA, order book, funds, or margins.</li>
+      <li>It reads <strong>only</strong> visible stock symbols and quantities from the holdings table DOM.</li>
+      <li>The content script includes a safety guard that <strong>immediately terminates</strong> on any authentication or login page.</li>
+      <li>No data from Kite is transmitted anywhere — extracted symbols are stored locally in <code>chrome.storage.local</code>.</li>
+    </ul>
+
+    <h2>5. Permissions Explained</h2>
+    <table>
+      <thead>
+        <tr><th>Permission</th><th>Why It's Needed</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>storage</code></td><td>Store tracked stocks, settings, and cached news locally in the browser</td></tr>
+        <tr><td><code>alarms</code></td><td>Schedule periodic background checks for new articles at your chosen interval</td></tr>
+        <tr><td><code>notifications</code></td><td>Show desktop alerts when new financial news arrives for your tracked stocks</td></tr>
+        <tr><td><code>tabs</code></td><td>Detect whether a Zerodha Kite tab is open so the "Sync Holdings" button can be enabled</td></tr>
+        <tr><td><code>scripting</code></td><td>Inject the holdings reader script into the Kite tab only when you click "Sync Holdings"</td></tr>
+        <tr><td><code>kite.zerodha.com</code></td><td>Read stock symbols from your holdings page (user-initiated only, never automatic)</td></tr>
+        <tr><td><code>news.google.com</code></td><td>Fetch public RSS news feeds for your tracked stock tickers</td></tr>
+        <tr><td><code>finance.yahoo.com</code></td><td>Fetch public financial news articles</td></tr>
+      </tbody>
+    </table>
+
+    <h2>6. Data Sharing</h2>
+    <p><strong>We do not sell, trade, or transfer any data to any third party.</strong> Since all data resides locally in your browser, there is nothing to share.</p>
+
+    <h2>7. Data Retention &amp; Deletion</h2>
+    <ul>
+      <li>All data is stored locally and persists only as long as the extension is installed.</li>
+      <li>You can clear all data at any time using <strong>Settings → Reset Everything</strong> in the Options page.</li>
+      <li>Uninstalling the extension automatically deletes all stored data.</li>
+    </ul>
+
+    <h2>8. Children's Privacy</h2>
+    <p>This extension is not directed at children under 13 and does not knowingly collect any information from children.</p>
+
+    <h2>9. Changes to This Policy</h2>
+    <p>If this privacy policy is updated, the changes will be reflected on this page with an updated "Last Updated" date. Continued use of the extension after changes constitutes acceptance of the revised policy.</p>
+
+    <h2>10. Contact</h2>
+    <p>If you have questions about this privacy policy, please open an issue on the <a href="https://github.com/RajendarKumar/stock_news_tracking_chrome_plugin/issues" target="_blank" rel="noopener">GitHub repository</a>.</p>
+
+    <div class="footer">
+      © 2026 Stock News Tracker &nbsp;|&nbsp; Built with ❤️ for Indian retail investors
+    </div>
+  </div>
+</body>
+</html>
