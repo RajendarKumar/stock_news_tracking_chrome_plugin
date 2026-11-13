@@ -37,10 +37,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnMarkAllRead = document.getElementById('btn-mark-all-read');
   const btnOpenOptions = document.getElementById('btn-open-options');
   const linkOptions = document.getElementById('link-options');
-  const kiteStatusDot = document.getElementById('kite-status-dot');
-  const kiteSyncTitle = document.getElementById('kite-sync-title');
-  const kiteSyncDesc = document.getElementById('kite-sync-desc');
-  const btnSyncKite = document.getElementById('btn-sync-kite');
+  const brokerStatusDot = document.getElementById('broker-status-dot');
+  const brokerSyncTitle = document.getElementById('broker-sync-title');
+  const brokerSyncDesc = document.getElementById('broker-sync-desc');
+  const btnSyncBroker = document.getElementById('btn-sync-broker');
   const syncSpinner = document.getElementById('sync-spinner');
   const syncBtnLabel = document.getElementById('sync-btn-label');
   const navNewsBadge = document.getElementById('nav-news-badge');
@@ -59,10 +59,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   const footerSyncTime = document.getElementById('footer-sync-time');
   const btnEmptySync = document.getElementById('btn-empty-sync');
   const quickChips = document.querySelectorAll('.quick-chip');
+  const BROKER_TABS_QUERY = {
+    url: ['*://kite.zerodha.com/*', '*://*.angelone.in/*']
+  };
+
+  // Keep broker sync available even if loading the rest of the popup fails.
+  btnSyncBroker.addEventListener('click', handleBrokerSync);
+  btnEmptySync.addEventListener('click', handleBrokerSync);
+  checkBrokerTabAvailability();
 
   // Initial Data Load
   await loadAllData();
-  checkKiteTabAvailability();
 
   // Navigation Tabs Event
   tabButtons.forEach((btn) => {
@@ -180,138 +187,237 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Check if user has Zerodha Kite open in any tab
-  function checkKiteTabAvailability() {
-    chrome.tabs.query({ url: '*://kite.zerodha.com/*' }, (tabs) => {
-      if (tabs && tabs.length > 0) {
-        kiteStatusDot.classList.add('connected');
-        kiteSyncTitle.textContent = 'Zerodha Kite Open';
-        kiteSyncDesc.textContent = 'Click to sync holdings on demand';
-        syncBtnLabel.textContent = '⚡ Sync Holdings';
-      } else {
-        kiteStatusDot.classList.remove('connected');
-        kiteSyncTitle.textContent = 'Zerodha Holdings Sync';
-        kiteSyncDesc.textContent = 'Open Kite Holdings tab to sync';
-        syncBtnLabel.textContent = 'Open & Sync';
-      }
+  function getBrokerForUrl(url) {
+    try {
+      const host = new URL(url).hostname;
+      if (host === 'kite.zerodha.com') return { name: 'Zerodha Kite' };
+      if (host === 'angelone.in' || host.endsWith('.angelone.in')) return { name: 'Angel One' };
+    } catch (error) {
+      return null;
+    }
+    return null;
+  }
+
+  // Show whether either supported broker is already open.
+  function checkBrokerTabAvailability() {
+    chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
+      const activeTab = activeTabs && activeTabs[0];
+      const activeBroker = activeTab ? getBrokerForUrl(activeTab.url || '') : null;
+
+      chrome.tabs.query(BROKER_TABS_QUERY, (brokerTabs) => {
+        const availableTabs = brokerTabs || [];
+        const broker = activeBroker ||
+          (availableTabs.length === 1 ? getBrokerForUrl(availableTabs[0].url || '') : null);
+
+        if (broker) {
+          brokerStatusDot.classList.add('connected');
+          brokerSyncTitle.textContent = `${broker.name} Open`;
+          brokerSyncDesc.textContent = 'Click to sync holdings on demand';
+          syncBtnLabel.textContent = '⚡ Sync Holdings';
+        } else {
+          brokerStatusDot.classList.remove('connected');
+          brokerSyncTitle.textContent = availableTabs.length > 1 ? 'Choose a Broker Tab' : 'Broker Holdings Sync';
+          brokerSyncDesc.textContent = availableTabs.length > 1
+            ? 'Select broker tab to sync'
+            : 'Open Zerodha Kite or Angel One to sync';
+          syncBtnLabel.textContent = availableTabs.length > 0 ? '⚡ Sync Holdings' : 'Open Zerodha Kite';
+        }
+      });
     });
   }
 
-  // Handle Sync from Kite button click (100% User-Initiated)
-  btnSyncKite.addEventListener('click', handleKiteSync);
-  btnEmptySync.addEventListener('click', handleKiteSync);
-
-  async function handleKiteSync() {
+  // Handle manual sync from either supported broker.
+  async function handleBrokerSync() {
     syncSpinner.style.display = 'inline-block';
-    syncBtnLabel.textContent = 'Checking Kite...';
-    btnSyncKite.disabled = true;
+    syncBtnLabel.textContent = 'Checking broker...';
+    btnSyncBroker.disabled = true;
 
     try {
-      chrome.tabs.query({ url: '*://kite.zerodha.com/*' }, async (tabs) => {
-        if (!tabs || tabs.length === 0) {
-          syncSpinner.style.display = 'none';
-          syncBtnLabel.textContent = 'Open & Sync';
-          btnSyncKite.disabled = false;
-          chrome.tabs.create({ url: 'https://kite.zerodha.com/holdings' });
-          window.close();
-          return;
+      const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      const tabs = await chrome.tabs.query(BROKER_TABS_QUERY);
+      const activeBroker = activeTab && getBrokerForUrl(activeTab.url || '');
+      let brokerTab = activeBroker ? activeTab : null;
+
+      if (!brokerTab) {
+        const sameWindowTabs = activeTab
+          ? tabs.filter((tab) => tab.windowId === activeTab.windowId)
+          : [];
+        const candidates = sameWindowTabs.length > 0 ? sameWindowTabs : tabs;
+        const activeBrokerTabs = candidates.filter((tab) => tab.active);
+
+        if (activeBrokerTabs.length === 1) {
+          brokerTab = activeBrokerTabs[0];
+        } else if (candidates.length === 1) {
+          brokerTab = candidates[0];
+        } else if (candidates.length > 1) {
+          throw new Error('More than one broker tab is open. Switch to the Angel One or Zerodha tab you want to sync, then click Sync Holdings.');
         }
+      }
 
-        const activeKiteTab = tabs[0];
-        const tabUrl = (activeKiteTab.url || '').toLowerCase();
+      if (!brokerTab) {
+        syncSpinner.style.display = 'none';
+        syncBtnLabel.textContent = 'Open Zerodha Kite';
+        btnSyncBroker.disabled = false;
+        await chrome.tabs.create({ url: 'https://kite.zerodha.com/holdings' });
+        window.close();
+        return;
+      }
 
-        // Safety Guard: if user is on login or 2FA, do NOT extract
-        if (
-          tabUrl === 'https://kite.zerodha.com/' ||
-          tabUrl.includes('/login') ||
-          tabUrl.includes('/twofa') ||
-          tabUrl.includes('/connect')
-        ) {
-          syncSpinner.style.display = 'none';
-          btnSyncKite.disabled = false;
-          syncBtnLabel.textContent = '⚡ Sync Holdings';
-          alert('You are currently on the Zerodha Kite login screen.\n\nPlease complete logging into your account and open the Holdings page (/holdings), then click Sync.');
-          return;
-        }
+      const broker = getBrokerForUrl(brokerTab.url || '');
+      const tabUrl = (brokerTab.url || '').toLowerCase();
+      if (!broker) {
+        throw new Error('The active tab is not a supported broker page.');
+      }
 
-        syncBtnLabel.textContent = 'Reading Holdings...';
+      if (/(^|\/)(login|signin|auth|twofa|otp)(\/|$)/.test(new URL(tabUrl).pathname) ||
+          tabUrl === 'https://kite.zerodha.com/') {
+        alert(`You are on the ${broker.name} login screen. Log in and open your Holdings or Positions page, then sync again.`);
+        return;
+      }
 
-        // Execute safe, read-only extractor on the tab
-        const results = await chrome.scripting.executeScript({
-          target: { tabId: activeKiteTab.id },
-          func: () => {
-            const path = (window.location.pathname || '').toLowerCase();
-            if (path.includes('login') || path.includes('twofa') || document.querySelector('input[type="password"]')) {
-              return { success: false, reason: 'auth' };
+      syncBtnLabel.textContent = `Reading ${broker.name}...`;
+      const results = await chrome.scripting.executeScript({
+        target: { tabId: brokerTab.id },
+        args: [broker.name],
+        func: (brokerName) => {
+          const route = `${window.location.pathname}${window.location.hash}`.toLowerCase();
+          const authRoute = /login|signin|auth|twofa|otp|forgot|reset/.test(route);
+          const hasCredentialInput = document.querySelector(
+            'input[type="password"], input[type="tel"], input[autocomplete="username"], ' +
+            'input[autocomplete="one-time-code"], input[name*="otp" i], input[id*="otp" i], ' +
+            'input[name*="mobile" i], input[id*="mobile" i]'
+          );
+          if (authRoute || hasCredentialInput) return { success: false, reason: 'auth' };
+
+          const portfolioHeading = Array.from(
+            document.querySelectorAll('h1, h2, h3, [role="tab"][aria-selected="true"], button[aria-selected="true"]')
+          ).some((element) => /holding|position/.test((element.textContent || '').toLowerCase()));
+          if (!/holding|position|portfolio/.test(route) && !portfolioHeading) {
+            return { success: false, reason: 'not_portfolio' };
+          }
+
+          const excluded = new Set([
+            'INSTRUMENT', 'SYMBOL', 'SCRIP', 'STOCK', 'QTY', 'QUANTITY', 'AVG',
+            'AVERAGE', 'LTP', 'PRICE', 'VALUE', 'P&L', 'PNL', 'CHANGE', 'HOLDINGS',
+            'POSITIONS', 'PORTFOLIO', 'TOTAL', 'ACTIONS', 'BUY', 'SELL', 'NSE', 'BSE'
+          ]);
+          const symbols = new Set();
+          const cleanSymbol = (value) => {
+            let symbol = (value || '').trim().toUpperCase();
+            if (symbol.includes(':')) symbol = symbol.split(':').pop();
+            return symbol.replace(/-(EQ|BE|BZ|SM|BL|IL)$/i, '').trim();
+          };
+          const addSymbol = (value) => {
+            const symbol = cleanSymbol(value);
+            if (
+              symbol.length >= 2 &&
+              symbol.length <= 20 &&
+              /[A-Z]/.test(symbol) &&
+              !excluded.has(symbol) &&
+              /^[A-Z0-9&]+$/.test(symbol)
+            ) {
+              symbols.add(symbol);
+            }
+          };
+
+          const rowSelector = 'table tbody tr, [role="row"], .ag-row, .cdk-row, .mat-row, .mat-mdc-row';
+          document.querySelectorAll(rowSelector).forEach((row) => {
+            if (row.getClientRects().length === 0) return;
+
+            const container = row.closest(
+              'table, [role="grid"], [role="table"], .ag-root, .mat-table, .mat-mdc-table'
+            );
+            if (!container) return;
+
+            const headers = Array.from(container.querySelectorAll(
+              'thead th, [role="columnheader"], .ag-header-cell, .mat-header-cell, .mat-mdc-header-cell'
+            )).map((header) => (header.textContent || '').trim().toLowerCase());
+            const semanticAncestors = [];
+            let ancestor = container;
+            while (ancestor && ancestor !== document.body) {
+              const label = [
+                ancestor.getAttribute('aria-label') || '',
+                ancestor.id || '',
+                typeof ancestor.className === 'string' ? ancestor.className : ''
+              ].join(' ').toLowerCase();
+              if (label) semanticAncestors.push(label);
+
+              const heading = ancestor.querySelector('h1, h2, h3, [role="heading"]');
+              if (heading) semanticAncestors.push((heading.textContent || '').toLowerCase());
+              ancestor = ancestor.parentElement;
             }
 
-            const symbols = new Set();
-            document.querySelectorAll('table tbody tr, .holdings-table tr, .table-wrapper tbody tr').forEach((row) => {
-              const cells = row.querySelectorAll('td');
-              if (cells.length >= 2) {
-                let raw = (cells[0].textContent || '').trim().toUpperCase();
-                if (raw.includes(':')) raw = raw.split(':')[1];
-                raw = raw.replace(/-EQ$|-BE$|-BZ$|-SM$/i, '').trim();
-                if (/^[A-Z0-9&]+$/.test(raw) && raw.length >= 2 && raw.length <= 20) {
-                  symbols.add(raw);
-                }
-              }
+            const context = semanticAncestors.join(' ');
+            if (/watch[\s_-]*list|market[\s_-]*watch|favourites|favorites/.test(context)) return;
+
+            const hasInstrumentHeader = headers.some((header) => /symbol|scrip|instrument|stock/.test(header));
+            const holdingColumnCount = headers.filter((header) =>
+              /qty|quantity|average|avg|invested|holding value|current value|p&l|pnl/.test(header)
+            ).length;
+            const hasPortfolioContext = /holding|position|portfolio/.test(context);
+            if (!hasPortfolioContext && !(hasInstrumentHeader && holdingColumnCount >= 2)) return;
+
+            const cells = Array.from(row.querySelectorAll(
+              'td, [role="gridcell"], .ag-cell, .cdk-cell, .mat-cell, .mat-mdc-cell'
+            ));
+            if (cells.length < 2) return;
+
+            const symbolColumn = headers.findIndex((header) => /symbol|scrip|instrument|stock/.test(header));
+            const symbolCellIndex = symbolColumn >= 0 ? symbolColumn : 0;
+            if (symbolCellIndex >= cells.length) return;
+            addSymbol(cells[symbolCellIndex].textContent || '');
+
+            cells[symbolCellIndex].querySelectorAll(
+              '.tradingsymbol, .instrument, [class*="scrip-name"], [class*="symbol-name"]'
+            ).forEach((element) => {
+              if (element.getClientRects().length > 0) addSymbol(element.textContent || '');
             });
+          });
 
-            document.querySelectorAll('.tradingsymbol, .instrument, span[class*="tradingsymbol"]').forEach((el) => {
-              let raw = (el.textContent || '').trim().toUpperCase();
-              if (raw.includes(':')) raw = raw.split(':')[1];
-              raw = raw.replace(/-EQ$|-BE$|-BZ$|-SM$/i, '').trim();
-              if (/^[A-Z0-9&]+$/.test(raw) && raw.length >= 2 && raw.length <= 20) {
-                symbols.add(raw);
-              }
-            });
-
-            return {
-              success: true,
-              symbols: Array.from(symbols),
-              url: window.location.href
-            };
-          }
-        });
-
-        syncSpinner.style.display = 'none';
-        btnSyncKite.disabled = false;
-
-        const res = results && results[0] ? results[0].result : null;
-
-        if (!res || !res.success) {
-          syncBtnLabel.textContent = '⚡ Sync Holdings';
-          alert('Could not read holdings. Please ensure you are viewing kite.zerodha.com/holdings.');
-          return;
+          return {
+            success: true,
+            symbols: Array.from(symbols),
+            broker: brokerName,
+            url: window.location.href
+          };
         }
-
-        if (res.symbols.length === 0) {
-          syncBtnLabel.textContent = '⚡ Sync Holdings';
-          alert('No stocks found on this page. Please navigate to the "Holdings" or "Positions" tab in Zerodha Kite, then click Sync.');
-          return;
-        }
-
-        const extractedStocks = res.symbols.map((sym) => ({
-          symbol: sym,
-          name: typeof resolveCompanyName === 'function' ? resolveCompanyName(sym) : sym,
-          source: 'Zerodha Kite',
-          category: 'holding'
-        }));
-
-        await processExtractedHoldings(extractedStocks);
       });
+
+      const result = results && results[0] ? results[0].result : null;
+      if (!result || !result.success) {
+        if (result && result.reason === 'auth') {
+          alert(`The ${broker.name} login/authentication page was detected. No holdings were read.`);
+        } else {
+          alert(`Could not read holdings. Open the ${broker.name} Holdings or Positions page and try again.`);
+        }
+        return;
+      }
+      if (result.symbols.length === 0) {
+        alert(`No stock symbols were found on this ${broker.name} page. Make sure the Holdings or Positions table is visible and loaded.`);
+        return;
+      }
+
+      const extractedStocks = result.symbols.map((symbol) => ({
+        symbol,
+        name: typeof resolveCompanyName === 'function' ? resolveCompanyName(symbol) : symbol,
+        source: broker.name,
+        category: 'holding'
+      }));
+      await processExtractedHoldings(extractedStocks, broker.name);
     } catch (e) {
-      syncSpinner.style.display = 'none';
-      btnSyncKite.disabled = false;
-      syncBtnLabel.textContent = '⚡ Sync Holdings';
       console.error(e);
-      alert('Error connecting to Kite tab: ' + e.message);
+      alert('Error connecting to broker tab: ' + e.message);
+    } finally {
+      syncSpinner.style.display = 'none';
+      btnSyncBroker.disabled = false;
+      if (syncBtnLabel.textContent.startsWith('Checking') || syncBtnLabel.textContent.startsWith('Reading')) {
+        syncBtnLabel.textContent = '⚡ Sync Holdings';
+      }
     }
   }
 
-  async function processExtractedHoldings(stocks) {
-    await StorageManager.upsertStocksFromBroker(stocks, 'Zerodha Kite');
+  async function processExtractedHoldings(stocks, brokerName) {
+    await StorageManager.upsertStocksFromBroker(stocks, brokerName);
     await loadAllData();
     syncBtnLabel.textContent = `✓ Synced ${stocks.length} Holdings`;
     setTimeout(() => {
@@ -337,12 +443,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       pillsContainer.innerHTML = `
         <div class="empty-pills-hint">
           <span>No companies tracked yet.</span>
-          <button class="mini-btn-sync" id="hint-btn-sync">⚡ Sync from Kite</button>
+          <button class="mini-btn-sync" id="hint-btn-sync">⚡ Sync Broker Holdings</button>
           <button class="mini-btn-sync" id="hint-btn-add" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); margin-left: 6px;">+ Track Company</button>
         </div>
       `;
       const hintBtn = document.getElementById('hint-btn-sync');
-      if (hintBtn) hintBtn.addEventListener('click', handleKiteSync);
+      if (hintBtn) hintBtn.addEventListener('click', handleBrokerSync);
       const hintAdd = document.getElementById('hint-btn-add');
       if (hintAdd) {
         hintAdd.addEventListener('click', () => {
@@ -362,11 +468,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       pillsContainer.innerHTML = `
         <div class="empty-pills-hint">
           <span>No holdings synced yet.</span>
-          <button class="mini-btn-sync" id="hint-btn-sync">⚡ Sync from Kite</button>
+          <button class="mini-btn-sync" id="hint-btn-sync">⚡ Sync Broker Holdings</button>
         </div>
       `;
       const hintBtn = document.getElementById('hint-btn-sync');
-      if (hintBtn) hintBtn.addEventListener('click', handleKiteSync);
+      if (hintBtn) hintBtn.addEventListener('click', handleBrokerSync);
       return;
     }
 
@@ -629,7 +735,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (trackedStocks.length === 0) {
       portfolioStocksList.innerHTML = `
         <div style="text-align: center; padding: 24px; color: var(--text-secondary);">
-          No companies tracked yet. Track any company above or sync holdings from Zerodha Kite.
+          No companies tracked yet. Track any company above or sync holdings from a supported broker.
         </div>
       `;
       return;
@@ -728,7 +834,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       const confirmed = confirm(
-        `Are you sure you want to clear your holdings list (${holdingsCount} stocks)?\n\nThis will remove all companies imported from Zerodha Kite. Any custom watchlist companies will be preserved.`
+        `Are you sure you want to clear your holdings list (${holdingsCount} stocks)?\n\nThis will remove all companies imported from supported brokers. Any custom watchlist companies will be preserved.`
       );
 
       if (confirmed) {

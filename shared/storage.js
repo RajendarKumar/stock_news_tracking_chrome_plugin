@@ -76,7 +76,7 @@ const StorageManager = {
     const newStock = {
       symbol: cleanSym,
       name: resolvedName,
-      category: source === 'Zerodha Kite' ? 'holding' : 'watchlist',
+      category: source === 'Zerodha Kite' || source === 'Angel One' ? 'holding' : 'watchlist',
       source: source,
       addedAt: Date.now(),
       lastSynced: Date.now()
@@ -142,7 +142,7 @@ const StorageManager = {
   },
 
   /**
-   * Updates stocks imported from Zerodha Kite holdings.
+   * Updates stocks imported from broker holdings.
    * STRICTLY preserves all other companies the user added (watchlist/research stocks).
    */
   async upsertStocksFromBroker(extractedStocks, brokerName = 'Zerodha Kite') {

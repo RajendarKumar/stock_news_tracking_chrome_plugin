@@ -18,6 +18,7 @@ assert.ok(manifest.permissions.includes('storage'), 'Must have storage permissio
 assert.ok(manifest.permissions.includes('alarms'), 'Must have alarms permission');
 assert.ok(manifest.permissions.includes('notifications'), 'Must have notifications permission');
 assert.ok(manifest.host_permissions.some(p => p.includes('kite.zerodha.com')), 'Must have Kite host permission');
+assert.ok(manifest.host_permissions.some(p => p.includes('angelone.in')), 'Must have Angel One host permission');
 assert.ok(manifest.host_permissions.some(p => p.includes('news.google.com')), 'Must have Google News host permission');
 assert.strictEqual(manifest.background.service_worker, 'background/background.js');
 console.log('  ✓ Manifest V3 validation passed');
@@ -177,17 +178,22 @@ const { StorageManager } = require('../shared/storage.js');
   await StorageManager.upsertStocksFromBroker([
     { symbol: 'TCS', name: 'Tata Consultancy Services', category: 'holding', source: 'Zerodha Kite' }
   ]);
+  await StorageManager.upsertStocksFromBroker([
+    { symbol: 'INFY', name: 'Infosys', category: 'holding', source: 'Angel One' }
+  ], 'Angel One');
   // Add a custom watchlist stock
   await StorageManager.addStock('ZOMATO', 'Zomato Ltd', 'watchlist');
 
   let stocks = await StorageManager.getStocks();
   assert.ok(stocks.some(s => s.symbol === 'TCS' && (s.source === 'Zerodha Kite' || s.category === 'holding')));
+  assert.ok(stocks.some(s => s.symbol === 'INFY' && s.source === 'Angel One' && s.category === 'holding'));
   assert.ok(stocks.some(s => s.symbol === 'ZOMATO' && s.category === 'watchlist'));
 
-  // Test clearHoldings: should remove TCS but retain ZOMATO
+  // Test clearHoldings: should remove holdings from both brokers but retain ZOMATO
   await StorageManager.clearHoldings();
   stocks = await StorageManager.getStocks();
   assert.strictEqual(stocks.some(s => s.symbol === 'TCS'), false, 'TCS holding should be removed');
+  assert.strictEqual(stocks.some(s => s.symbol === 'INFY'), false, 'Angel One holding should be removed');
   assert.strictEqual(stocks.some(s => s.symbol === 'ZOMATO'), true, 'ZOMATO watchlist should be retained');
 
   // Now test clearCompleteList: should wipe ALL stocks permanently
@@ -213,4 +219,3 @@ const { StorageManager } = require('../shared/storage.js');
   console.log('  ✓ StorageManager clearCompleteList and persistence verified');
   console.log('\n🎉 ALL 6 TEST SUITES PASSED SUCCESSFULLY!');
 })();
-

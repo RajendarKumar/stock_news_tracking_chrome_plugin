@@ -42,16 +42,16 @@
       </div>
     </header>
 
-    <!-- Zerodha Kite Manual Sync Banner (User Controlled) -->
+    <!-- Broker Manual Sync Banner (User Controlled) -->
     <div id="broker-sync-banner" class="broker-banner">
       <div class="broker-info">
-        <span class="broker-status-dot" id="kite-status-dot"></span>
+        <span class="broker-status-dot" id="broker-status-dot"></span>
         <div class="broker-text">
-          <strong id="kite-sync-title">Zerodha Holdings Sync</strong>
-          <span id="kite-sync-desc">Manual only: sync when you choose</span>
+          <strong id="broker-sync-title">Broker Holdings Sync</strong>
+          <span id="broker-sync-desc">Manual only: sync when you choose</span>
         </div>
       </div>
-      <button id="btn-sync-kite" class="sync-action-btn">
+      <button id="btn-sync-broker" class="sync-action-btn">
         <span class="btn-spinner" id="sync-spinner" style="display:none;"></span>
         <span id="sync-btn-label">⚡ Sync Holdings</span>
       </button>
@@ -124,8 +124,8 @@
       <div id="news-empty-state" class="state-container" style="display: none;">
         <div class="empty-icon">📰</div>
         <h3>No News Found</h3>
-        <p id="empty-state-desc">Add any company below or sync holdings from Zerodha Kite.</p>
-        <button class="primary-btn" id="btn-empty-sync">Sync from Kite Now</button>
+        <p id="empty-state-desc">Add any company below or sync holdings from a supported broker.</p>
+        <button class="primary-btn" id="btn-empty-sync">Sync Broker Holdings</button>
       </div>
     </div>
 
@@ -159,7 +159,7 @@
       <div class="section-header">
         <h3>Tracked Companies (<span id="portfolio-total-count">0</span>)</h3>
         <div class="header-action-buttons">
-          <button id="btn-clear-holdings" class="text-btn danger-text" style="display: none;" title="Clear all stocks imported from Zerodha Kite">Clear Holdings</button>
+          <button id="btn-clear-holdings" class="text-btn danger-text" style="display: none;" title="Clear all stocks imported from a broker">Clear Holdings</button>
           <button id="btn-clear-all" class="text-btn danger-text" title="Clear complete list of all companies">🗑️ Clear Complete List</button>
         </div>
       </div>

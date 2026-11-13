@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Stock News Tracker (Zerodha Kite & Portfolio)",
-  "version": "1.0.0",
-  "description": "Track real-time financial news for stocks in your Zerodha Kite portfolio with 1-click sync and desktop alerts.",
+  "name": "Stock News Tracker (Zerodha, Angel One & Portfolio)",
+  "version": "1.1.0",
+  "description": "Track real-time financial news for stocks in your Zerodha Kite or Angel One portfolio with 1-click sync and desktop alerts.",
   "permissions": [
     "storage",
     "alarms",
@@ -12,6 +12,7 @@
   ],
   "host_permissions": [
     "*://kite.zerodha.com/*",
+    "https://*.angelone.in/*",
     "https://news.google.com/*",
     "https://finance.yahoo.com/*"
   ],
@@ -39,4 +40,3 @@
     "128": "icons/icon128.png"
   }
 }
-

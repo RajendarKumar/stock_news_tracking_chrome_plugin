@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Broker Sync & Tester Elements
   const btnOpenKite = document.getElementById('btn-open-kite');
+  const btnOpenAngelOne = document.getElementById('btn-open-angelone');
   const testSymbolInput = document.getElementById('test-symbol-input');
   const btnRunTest = document.getElementById('btn-run-test');
   const testResultsContainer = document.getElementById('test-results-container');
@@ -86,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (btnClearHoldingsOptions) {
-      const holdingsCount = trackedStocks.filter((s) => s.source === 'Zerodha Kite' || s.category === 'holding').length;
+      const holdingsCount = trackedStocks.filter((s) => s.source === 'Zerodha Kite' || s.source === 'Angel One' || s.category === 'holding').length;
       if (holdingsCount > 0) {
         btnClearHoldingsOptions.style.display = 'inline-block';
         btnClearHoldingsOptions.textContent = `Clear Holdings Only (${holdingsCount})`;
@@ -98,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (filtered.length === 0) {
       const tr = document.createElement('tr');
       const emptyMsg = trackedStocks.length === 0
-        ? 'No tracked stocks yet. Click "+ Add New Stock" or sync holdings from Zerodha Kite.'
+        ? 'No tracked stocks yet. Click "+ Add New Stock" or sync holdings from Zerodha Kite or Angel One.'
         : 'No stocks match your query.';
       tr.innerHTML = `
         <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 32px;">
@@ -113,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const tr = document.createElement('tr');
       const dateStr = stock.addedAt ? new Date(stock.addedAt).toLocaleDateString() : '-';
 
-      const isHolding = stock.source === 'Zerodha Kite' || stock.category === 'holding';
+      const isHolding = stock.source === 'Zerodha Kite' || stock.source === 'Angel One' || stock.category === 'holding';
       const badgeText = isHolding ? '🏢 Holding' : '⭐ Watchlist';
       const badgeStyle = isHolding ? 'background: rgba(16, 185, 129, 0.15); color: #10b981;' : 'background: rgba(59, 130, 246, 0.15); color: #60a5fa;';
 
@@ -145,14 +146,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // One-click Clear Holdings with Confirmation
   if (btnClearHoldingsOptions) {
     btnClearHoldingsOptions.addEventListener('click', async () => {
-      const holdings = trackedStocks.filter((s) => s.source === 'Zerodha Kite' || s.category === 'holding');
+      const holdings = trackedStocks.filter((s) => s.source === 'Zerodha Kite' || s.source === 'Angel One' || s.category === 'holding');
       if (holdings.length === 0) {
         alert('No broker holdings currently tracked to clear.');
         return;
       }
 
       const confirmed = confirm(
-        `Are you sure you want to clear your holdings list (${holdings.length} stocks)?\n\nThis will remove all companies synced from Zerodha Kite. Any custom watchlist companies will be preserved.`
+        `Are you sure you want to clear your holdings list (${holdings.length} stocks)?\n\nThis will remove all companies synced from supported brokers. Any custom watchlist companies will be preserved.`
       );
 
       if (confirmed) {
@@ -251,6 +252,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   btnOpenKite.addEventListener('click', () => {
     chrome.tabs.create({ url: 'https://kite.zerodha.com/holdings' });
   });
+  btnOpenAngelOne.addEventListener('click', () => {
+    chrome.tabs.create({ url: 'https://trade.angelone.in/' });
+  });
 
   // Live Feed Tester
   btnRunTest.addEventListener('click', async () => {
@@ -342,4 +346,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     return text.toString().replace(/[&<>"']/g, (m) => map[m]);
   }
 });
-
