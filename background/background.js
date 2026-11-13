@@ -140,9 +140,36 @@ async function notifyUserAboutNewArticles(newItems, notifiedIds) {
   // Limit notifications per batch to avoid spamming the user
   const toNotify = newItems.slice(0, 3);
 
-  for (const { stock, article } of toNotify) {
+  const notificationTargets = await new Promise((resolve, reject) => {
+    chrome.storage.local.get(['notificationTargets'], (result) => {
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+        return;
+      }
+      resolve(result.notificationTargets || {});
+    });
+  });
+  const pendingNotifications = toNotify.map(({ stock, article }) => {
+    const notificationId = `news-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    notificationTargets[notificationId] = article.link || '';
+    return { notificationId, stock, article };
+  });
+
+  const retainedTargets = Object.fromEntries(
+    Object.entries(notificationTargets).slice(-200)
+  );
+  await new Promise((resolve, reject) => {
+    chrome.storage.local.set({ notificationTargets: retainedTargets }, () => {
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+        return;
+      }
+      resolve();
+    });
+  });
+
+  for (const { notificationId, stock, article } of pendingNotifications) {
     notifiedIds.add(article.id);
-    const notificationId = `news-${encodeURIComponent(article.link || article.id)}`;
 
     chrome.notifications.create(notificationId, {
       type: 'basic',
@@ -150,6 +177,10 @@ async function notifyUserAboutNewArticles(newItems, notifiedIds) {
       title: `[${stock.symbol}] ${article.title}`,
       message: `${article.source} • ${article.snippet ? article.snippet.slice(0, 100) : 'Tap to read article'}`,
       priority: 2
+    }, () => {
+      if (chrome.runtime.lastError) {
+        console.error('[Stock News Tracker] Failed to create notification:', chrome.runtime.lastError.message);
+      }
     });
   }
 
@@ -158,15 +189,30 @@ async function notifyUserAboutNewArticles(newItems, notifiedIds) {
 }
 
 // Open article when user clicks desktop notification
-chrome.notifications.onClicked.addListener((notificationId) => {
-  if (notificationId.startsWith('news-')) {
-    const rawUrl = notificationId.replace('news-', '');
-    try {
-      const targetUrl = decodeURIComponent(rawUrl);
-      chrome.tabs.create({ url: targetUrl });
-    } catch (e) {
-      console.error('[Stock News Tracker] Failed to open notification URL:', e);
+chrome.notifications.onClicked.addListener(async (notificationId) => {
+  if (!notificationId.startsWith('news-')) return;
+
+  try {
+    const result = await new Promise((resolve, reject) => {
+      chrome.storage.local.get(['notificationTargets'], (stored) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        resolve(stored.notificationTargets || {});
+      });
+    });
+    const targetUrl = result[notificationId];
+    if (!targetUrl) return;
+
+    const parsedUrl = new URL(targetUrl);
+    if (parsedUrl.protocol !== 'https:' && parsedUrl.protocol !== 'http:') {
+      throw new Error('Notification target is not an HTTP(S) URL.');
     }
+
+    await chrome.tabs.create({ url: parsedUrl.href });
+  } catch (error) {
+    console.error('[Stock News Tracker] Failed to open notification article:', error);
   }
 });
 
@@ -230,4 +276,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 });
-
