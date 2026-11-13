@@ -1,13 +1,13 @@
 # Stock News Tracker (Chrome Extension - Manifest V3)
 
-A Google Chrome Extension that tracks real-time financial news for companies you own in your share market portfolio and any other companies on your watchlist, with **100% manual, user-controlled sync** from your broker (**Zerodha Kite**).
+A Google Chrome Extension that tracks real-time financial news for companies you own in your share market portfolio and any other companies on your watchlist, with **100% manual, user-controlled sync** from your broker (**Zerodha Kite or Angel One**).
 
 ---
 
 ## ✨ Features
 
 - 🔒 **100% User-Controlled Manual Sync (Zero Auto-Sync)**:
-  - **No background scripts running on Kite**: The extension never injects scripts or monitors your browsing on Zerodha Kite.
+  - **No automatic broker access**: The extension reads broker pages only after you click sync; it never monitors your browsing.
   - **Zero touch during login or trading**: Orders, funds, logins, passwords, and 2FA are completely untouched and isolated.
   - **On-Demand Sync**: When *you* choose to sync holdings, simply click **`⚡ Sync Holdings`** from the extension popup.
   - Reads only visible stock symbols from your holdings table and immediately disconnects.
@@ -16,7 +16,7 @@ A Google Chrome Extension that tracks real-time financial news for companies you
   - Track news for **any company**, even if you do not hold shares.
   - Quick-add suggestions for top Indian stocks (Reliance, TCS, Infosys, Tata Motors, HDFC Bank, Zomato, etc.).
   - Category filters: Filter your feed by **All Companies**, **🏢 Holdings Only**, or **⭐ Watchlist Only**.
-  - Syncing holdings from Kite **never deletes or alters** your custom watchlist companies.
+  - Syncing holdings from either broker **never deletes or alters** your custom watchlist companies.
 
 - 📰 **Real-Time Financial News (No API Keys Required)**:
   - Fetches live financial headlines and analysis using Google News RSS & Yahoo Finance editions.
@@ -70,12 +70,11 @@ A Google Chrome Extension that tracks real-time financial news for companies you
 - Click any quick-add chip (e.g. `TATAMOTORS`, `ZOMATO`) or enter any NSE/BSE symbol in the **"+ Track Any Company"** box.
 - The latest news for that company will begin loading immediately!
 
-### 2. Syncing Holdings from Zerodha Kite (On-Demand Only)
-- In Chrome, open [https://kite.zerodha.com](https://kite.zerodha.com) and log into your account.
-- Navigate to your **Holdings** page ([kite.zerodha.com/holdings](https://kite.zerodha.com/holdings)).
+### 2. Syncing Broker Holdings (On-Demand Only)
+- In Chrome, open and log into [Zerodha Kite](https://kite.zerodha.com) or [Angel One](https://trade.angelone.in).
+- Navigate to the broker's **Holdings** or **Positions** page and wait for the table to load.
 - Click the **Stock News Tracker** icon in your Chrome toolbar.
-- Click **`⚡ Sync Holdings`**.
-- The extension reads the stock symbols from your holdings table, labels them as `🏢 Holding`, and starts tracking news for them alongside your other watchlist companies.
+- Click **`⚡ Sync Holdings`**. The extension reads the visible stock symbols, labels them as `🏢 Holding`, and tracks news for them alongside your other watchlist companies.
 
 ---
 
@@ -102,8 +101,8 @@ Enter any stock ticker in the **Live Feed Tester** section to preview the Google
 
 ## 🔒 Privacy & Security Guarantee
 
-- **Zero Automatic Broker Access**: No code is injected automatically when you visit or log into `kite.zerodha.com`.
-- **Zero Access to Sensitive Data**: The extension never reads or touches your password, TOTP, account funds, margin, or order book.
+- **Zero Automatic Broker Access**: No code is injected automatically when you visit or log into either supported broker.
+- **Zero Access to Sensitive Data**: The extension never reads or touches your password, TOTP, account funds, margin, or order book. Login/authentication pages are excluded from extraction.
 - **Client-Side Only**: All holdings and preferences remain stored strictly inside your local browser storage (`chrome.storage.local`).
 
 📄 Read the full [Privacy Policy](https://rajendarkumar.github.io/stock_news_tracking_chrome_plugin/privacy-policy.html).

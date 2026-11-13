@@ -98,8 +98,8 @@
 <body>
   <div class="container">
     <h1>🔒 Privacy Policy</h1>
-    <p class="subtitle">Stock News Tracker (Zerodha Kite &amp; Portfolio) — Chrome Extension<br>
-    Effective Date: October 9, 2026 &nbsp;|&nbsp; Last Updated: October 9, 2026</p>
+    <p class="subtitle">Stock News Tracker (Zerodha Kite, Angel One &amp; Portfolio) — Chrome Extension<br>
+    Effective Date: October 9, 2026 &nbsp;|&nbsp; Last Updated: November 13, 2026</p>
 
     <div class="highlight">
       <p><strong>Summary:</strong> This extension collects <strong>zero personal data</strong>. Everything is stored locally in your browser. No data is ever sent to any external server owned by us.</p>
@@ -110,12 +110,12 @@
     <p>The extension stores the following data <strong>locally</strong> in your browser using <code>chrome.storage.local</code>:</p>
     <ul>
       <li>Stock symbols and company names you choose to track (watchlist)</li>
-      <li>Stock symbols extracted from your Zerodha Kite holdings page (only when you explicitly click "Sync Holdings")</li>
+      <li>Stock symbols extracted from your Zerodha Kite or Angel One holdings page (only when you explicitly click "Sync Holdings")</li>
       <li>Cached news article headlines fetched from public RSS feeds</li>
       <li>Your extension preferences (refresh interval, notification settings, region)</li>
       <li>Read/bookmarked article states</li>
     </ul>
-    <p><strong>None of this data ever leaves your browser.</strong> There is no analytics, no telemetry, no remote database, and no server-side component.</p>
+    <p>Tracked portfolio data is stored locally; the extension does not send it to a server owned by us. Stock symbols are included in queries to Google News to retrieve matching public news feeds. There is no analytics, no telemetry, no remote database, and no server-side component.</p>
 
     <h2>2. How We Use Information</h2>
     <p>The locally stored data is used solely to:</p>
@@ -133,15 +133,14 @@
     </ul>
     <p>These requests are standard HTTP fetches to public URLs. No authentication tokens, cookies, or personal identifiers are sent with these requests.</p>
 
-    <h2>4. Zerodha Kite Access</h2>
+    <h2>4. Broker Access</h2>
     <div class="highlight">
-      <p><strong>The extension never accesses Zerodha Kite automatically.</strong> It only reads your holdings page when you explicitly click the "Sync Holdings" button.</p>
+      <p><strong>The extension never accesses a broker automatically.</strong> It only reads your visible holdings or positions table when you explicitly click the "Sync Holdings" button on a Zerodha Kite or Angel One tab.</p>
     </div>
     <ul>
-      <li>The extension <strong>never</strong> touches login pages, passwords, TOTP/2FA, order book, funds, or margins.</li>
-      <li>It reads <strong>only</strong> visible stock symbols and quantities from the holdings table DOM.</li>
-      <li>The content script includes a safety guard that <strong>immediately terminates</strong> on any authentication or login page.</li>
-      <li>No data from Kite is transmitted anywhere — extracted symbols are stored locally in <code>chrome.storage.local</code>.</li>
+      <li>The extension <strong>never</strong> reads login credentials, TOTP/2FA, order book, funds, or margins. Authentication pages are excluded from extraction.</li>
+      <li>It reads <strong>only</strong> visible stock symbols from a holdings or positions table, and stores the extracted symbols locally in <code>chrome.storage.local</code>.</li>
+      <li>Broker credentials and account data are not transmitted. Stock symbols are used to request matching public news feeds as described in Section 3.</li>
     </ul>
 
     <h2>5. Permissions Explained</h2>
@@ -153,9 +152,10 @@
         <tr><td><code>storage</code></td><td>Store tracked stocks, settings, and cached news locally in the browser</td></tr>
         <tr><td><code>alarms</code></td><td>Schedule periodic background checks for new articles at your chosen interval</td></tr>
         <tr><td><code>notifications</code></td><td>Show desktop alerts when new financial news arrives for your tracked stocks</td></tr>
-        <tr><td><code>tabs</code></td><td>Detect whether a Zerodha Kite tab is open so the "Sync Holdings" button can be enabled</td></tr>
-        <tr><td><code>scripting</code></td><td>Inject the holdings reader script into the Kite tab only when you click "Sync Holdings"</td></tr>
-        <tr><td><code>kite.zerodha.com</code></td><td>Read stock symbols from your holdings page (user-initiated only, never automatic)</td></tr>
+        <tr><td><code>tabs</code></td><td>Detect whether a supported broker tab is open so the "Sync Holdings" button can be enabled</td></tr>
+        <tr><td><code>scripting</code></td><td>Run the holdings reader in the selected broker tab only when you click "Sync Holdings"</td></tr>
+        <tr><td><code>kite.zerodha.com</code></td><td>Read stock symbols from your Zerodha holdings page (user-initiated only, never automatic)</td></tr>
+        <tr><td><code>trade.angelone.in</code></td><td>Read stock symbols from your Angel One holdings page (user-initiated only, never automatic)</td></tr>
         <tr><td><code>news.google.com</code></td><td>Fetch public RSS news feeds for your tracked stock tickers</td></tr>
         <tr><td><code>finance.yahoo.com</code></td><td>Fetch public financial news articles</td></tr>
       </tbody>
@@ -186,4 +186,3 @@
   </div>
 </body>
 </html>
-
